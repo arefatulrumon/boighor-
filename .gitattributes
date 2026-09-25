@@ -1,0 +1,39 @@
+# Git কীভাবে line ending সামলাবে।
+#
+# কেন দরকার?
+#   Windows এ লেখা হয় CRLF দিয়ে, Linux (Vercel) চলে LF দিয়ে। এটা ঠিক না করলে
+#   প্রতিটি ফাইলে "সব লাইন বদলে গেছে" দেখায়, আর কখনো কখনো বিল্ডে অদ্ভুত
+#   এরর আসে। এখানে উল্লেখ করা নিয়ম সব ফাইলে জোর করে LF রাখে।
+#
+# সূত্র: https://git-scm.com/docs/gitattributes
+
+* text=auto eol=lf
+
+# ছবি/ফন্ট — বাইনারি, Git হাত দেবে না
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.avif binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+
+# Windows এ যেসব ফাইলে CRLF থাকা স্বাভাবিক
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# ভাষা শনাক্তকরণ — GitHub সবুজ রঙে ঠিক হিসাব দেখাবে
+*.ts   text
+*.tsx  text
+*.css  text
+*.json text
+*.md   text
+*.sql  text
+*.yml  text
+
+# Generated — diff এ দেখানোর দরকার নেই
+package-lock.json -diff
+supabase/RUN_ALL_IN_SQL_EDITOR.sql linguist-generated=true

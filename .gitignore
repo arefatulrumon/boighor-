@@ -1,0 +1,38 @@
+# ---- Dependencies ----
+node_modules/
+.pnp
+.pnp.js
+
+# ---- Environment (⚠️ সিক্রেট কখনো কমিট হবে না) ----
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# ---- Next.js ----
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# ---- Vercel ----
+.vercel/
+
+# ---- Supabase CLI ----
+supabase/.branches
+supabase/.temp
+
+# ---- Editor / OS ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# ---- Logs ----
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

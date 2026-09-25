@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+/* -----------------------------------------------------------------------------
+ * Tailwind CSS v4 — কনফিগারেশন এখন CSS এর ভেতরেই।
+ * পুরনো `tailwind.config.js` নেই; কাস্টম রঙ/ফন্ট এখানে `@theme` এ যোগ করুন।
+ *
+ * `@theme inline` ব্যবহার করা হয়েছে কারণ মানটা আরেকটা CSS ভেরিয়েবলের দিকে
+ * ইশারা করে (next/font যে ভেরিয়েবলটা বানায়)।
+ * -------------------------------------------------------------------------- */
+@theme inline {
+  --font-sans: var(--font-bangla), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", "Noto Sans Bengali", sans-serif;
+}
+
+/* বাংলা লেখার জন্য লাইন-হাইট একটু বেশি দরকার (মাত্রা উপরে-নিচে জায়গা নেয়) */
+:root {
+  --bn-leading: 1.85;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #fafaf9;
+  color: #1c1917;
+  font-feature-settings: "kern";
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* বাংলা টেক্সটের জন্য আরামদায়ক লাইন-স্পেসিং */
+.prose-bn p,
+.prose-bn li {
+  line-height: var(--bn-leading);
+}
+
+/* কার্ট/অর্ডারে সংখ্যা সবসময় বাঁ-থেকে-ডান, এমনকি বাংলা লেবেলের ভেতরেও */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* কীবোর্ড ইউজারদের জন্য স্পষ্ট ফোকাস রিং */
+:focus-visible {
+  outline: 2px solid #065f46;
+  outline-offset: 2px;
+}
+
+/* স্ক্রলবার লুকানো (ক্যাটাগরি স্ক্রলারে ব্যবহার হয়) কিন্তু স্ক্রল করা যায় */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* প্রিন্টে হেডার/ফুটার লুকিয়ে invoice পরিষ্কার দেখানো */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}

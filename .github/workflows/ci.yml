@@ -1,0 +1,44 @@
+name: CI
+
+# প্রতি পুশ ও পুল রিকোয়েস্টে টাইপ চেক ও বিল্ড চালায়।
+# ফলে ভাঙা কোড main ব্রাঞ্চে ঢুকতে পারে না — Vercel এর আগেই ধরা পড়ে।
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node.js সেটআপ
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: ডিপেন্ডেন্সি ইনস্টল
+        run: npm ci
+
+      - name: টাইপ চেক
+        run: npm run typecheck
+
+      - name: টেস্ট
+        run: npm run test
+
+      - name: বিল্ড
+        run: npm run build
+        env:
+          # প্লেসহোল্ডার মান — বিল্ড যাচাইয়ের জন্য যথেষ্ট।
+          # আসল ডেটাবেস লাগে না, কারণ সব কোয়েরি fetch ব্যর্থ হলেও
+          # অ্যাপ ডিফল্ট মান দিয়ে চলে।
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+          SUPABASE_SECRET_KEY: sb_secret_ci_placeholder
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          NEXT_PUBLIC_STORE_NAME: বইঘর

@@ -240,6 +240,7 @@ React Context, হাতে লেখা ভ্যালিডেশন আর T
 
 | প্রশ্ন | দেখুন |
 |---|---|
+| **সাইট লাইভ করব কীভাবে?** | **[DEPLOY.md](DEPLOY.md)** |
 | সিস্টেম কীভাবে কাজ করে? | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | ডেটাবেস সেটআপ | [supabase/README.md](supabase/README.md) |
 | কেন এমন সিদ্ধান্ত? | [DECISIONS.md](DECISIONS.md) |

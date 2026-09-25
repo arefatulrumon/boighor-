@@ -55,6 +55,42 @@ alter table public.reviews              enable row level security;
 alter table public.site_settings        enable row level security;
 
 -- =============================================================================
+--  পুরনো পলিসি থাকলে আগে মুছে ফেলা হচ্ছে
+--
+--  ⚠️ PostgreSQL-এ `create policy if not exists` নেই। তাই এই ধাপটা ছাড়া
+--     ফাইলটা দ্বিতীয়বার চালালে "policy ... already exists" (42710) এররে
+--     থেমে যাবে, আর বাকি পলিসিগুলো বসবে না।
+--
+--  নতুন পলিসি যোগ করলে তার নামও নিচের তালিকায় বসিয়ে দিন।
+-- =============================================================================
+drop policy if exists "staff_read_self"              on public.staff;
+drop policy if exists "staff_admin_all"              on public.staff;
+
+drop policy if exists "categories_public_read"       on public.categories;
+drop policy if exists "categories_staff_all"         on public.categories;
+
+drop policy if exists "books_public_read_active"     on public.books;
+drop policy if exists "books_staff_all"              on public.books;
+
+drop policy if exists "zones_public_read"            on public.delivery_zones;
+drop policy if exists "zones_staff_all"              on public.delivery_zones;
+
+drop policy if exists "coupons_staff_all"            on public.coupons;
+
+drop policy if exists "orders_staff_all"             on public.orders;
+drop policy if exists "order_items_staff_all"        on public.order_items;
+
+drop policy if exists "order_history_staff_read"     on public.order_status_history;
+drop policy if exists "order_history_staff_insert"   on public.order_status_history;
+
+drop policy if exists "reviews_public_read_approved" on public.reviews;
+drop policy if exists "reviews_public_insert"        on public.reviews;
+drop policy if exists "reviews_staff_all"            on public.reviews;
+
+drop policy if exists "settings_public_read"         on public.site_settings;
+drop policy if exists "settings_staff_all"           on public.site_settings;
+
+-- =============================================================================
 --  STAFF
 -- =============================================================================
 create policy "staff_read_self" on public.staff

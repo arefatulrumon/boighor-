@@ -10,14 +10,46 @@ create extension if not exists pg_trgm;
 -- -----------------------------------------------------------------------------
 -- ENUM টাইপ — অর্ডার/পেমেন্ট/বইয়ের অবস্থা এখানে কেন্দ্রীভূত।
 -- নতুন ভ্যালু লাগলে: alter type public.order_status add value 'new_status';
+--
+-- ⚠️ PostgreSQL-এ `create type if not exists` নেই। তাই প্রতিটিকে একটি
+--    DO ব্লকে মুড়ে duplicate_object এরর ধরা হচ্ছে — নাহলে ফাইলটা দ্বিতীয়বার
+--    চালালে "type already exists" (42710) এররে থেমে যাবে, আর বাকি সব
+--    statement চলবে না। (এই ভুলটাই একবার ঘটেছিল।)
 -- -----------------------------------------------------------------------------
-create type public.order_status   as enum ('pending','confirmed','packed','shipped','delivered','cancelled','returned');
-create type public.payment_method as enum ('cod','bkash','nagad');
-create type public.payment_status as enum ('unpaid','pending_verification','paid','refunded','failed');
-create type public.book_language  as enum ('bangla','english','arabic','hindi','other');
-create type public.book_binding   as enum ('paperback','hardcover','spiral','ebook');
-create type public.discount_type  as enum ('percent','fixed');
-create type public.staff_role     as enum ('admin','manager','fulfillment');
+do $$ begin
+  create type public.order_status as enum ('pending','confirmed','packed','shipped','delivered','cancelled','returned');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type public.payment_method as enum ('cod','bkash','nagad');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type public.payment_status as enum ('unpaid','pending_verification','paid','refunded','failed');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type public.book_language as enum ('bangla','english','arabic','hindi','other');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type public.book_binding as enum ('paperback','hardcover','spiral','ebook');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type public.discount_type as enum ('percent','fixed');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type public.staff_role as enum ('admin','manager','fulfillment');
+exception when duplicate_object then null;
+end $$;
 
 -- অর্ডার নম্বরের সিকোয়েন্স (BK-260924-0001 স্টাইলের জন্য)।
 create sequence if not exists public.order_number_seq start 1;
@@ -38,7 +70,7 @@ $$;
 -- =============================================================================
 -- ১. STAFF  —  অ্যাডমিন/কর্মীদের তালিকা (auth.users এর সাথে লিংকড)
 -- =============================================================================
-create table public.staff (
+create table if not exists public.staff (
   user_id     uuid primary key references auth.users(id) on delete cascade,
   full_name   text,
   role        public.staff_role not null default 'fulfillment',
@@ -52,7 +84,7 @@ comment on table public.staff is
 -- =============================================================================
 -- ২. CATEGORIES  —  বিষয়/ধরন (বাংলা বিভাগ, উপবিভাগ)
 -- =============================================================================
-create table public.categories (
+create table if not exists public.categories (
   id          uuid primary key default gen_random_uuid(),
   slug        text not null unique,
   name_bn     text not null,
@@ -65,13 +97,13 @@ create table public.categories (
   updated_at  timestamptz not null default now()
 );
 
-create index categories_parent_idx on public.categories (parent_id);
-create index categories_active_sort_idx on public.categories (is_active, sort_order);
+create index if not exists categories_parent_idx on public.categories (parent_id);
+create index if not exists categories_active_sort_idx on public.categories (is_active, sort_order);
 
 -- =============================================================================
 -- ৩. BOOKS  —  বইয়ের মূল ক্যাটালগ
 -- =============================================================================
-create table public.books (
+create table if not exists public.books (
   id                  uuid primary key default gen_random_uuid(),
   slug                text unique,
 
@@ -133,11 +165,11 @@ create table public.books (
   updated_at          timestamptz not null default now()
 );
 
-create index books_category_idx      on public.books (category_id);
-create index books_active_idx        on public.books (is_active, created_at desc);
-create index books_featured_idx      on public.books (is_featured) where is_active;
-create index books_search_trgm_idx   on public.books using gin (search_text gin_trgm_ops);
-create index books_title_trgm_idx    on public.books using gin (title_bn gin_trgm_ops);
+create index if not exists books_category_idx      on public.books (category_id);
+create index if not exists books_active_idx        on public.books (is_active, created_at desc);
+create index if not exists books_featured_idx      on public.books (is_featured) where is_active;
+create index if not exists books_search_trgm_idx   on public.books using gin (search_text gin_trgm_ops);
+create index if not exists books_title_trgm_idx    on public.books using gin (title_bn gin_trgm_ops);
 
 -- slug খালি থাকলে টাইটেল থেকে অটো-বানাও; কিছু না হলে id দিয়ে।
 create or replace function public.books_set_slug()
@@ -165,7 +197,7 @@ $$;
 -- =============================================================================
 -- ৪. DELIVERY ZONES  —  ডেলিভারি চার্জ (বিভাগভিত্তিক)
 -- =============================================================================
-create table public.delivery_zones (
+create table if not exists public.delivery_zones (
   id                uuid primary key default gen_random_uuid(),
   name_bn           text not null,
   division          text not null,          -- 'ঢাকা', 'চট্টগ্রাম' ...
@@ -184,7 +216,7 @@ create table public.delivery_zones (
 -- =============================================================================
 -- ৫. COUPONS  —  ডিসকাউন্ট কোড
 -- =============================================================================
-create table public.coupons (
+create table if not exists public.coupons (
   id             uuid primary key default gen_random_uuid(),
   code           text not null unique,
   description_bn text,
@@ -213,7 +245,7 @@ end; $$;
 -- =============================================================================
 -- ৬. ORDERS  —  অর্ডার (একটাই বড় টেবিল, snapshot সহ)
 -- =============================================================================
-create table public.orders (
+create table if not exists public.orders (
   id                     uuid primary key default gen_random_uuid(),
   order_number           text not null unique,
 
@@ -262,16 +294,16 @@ create table public.orders (
   updated_at             timestamptz not null default now()
 );
 
-create index orders_status_idx      on public.orders (status, created_at desc);
-create index orders_phone_idx       on public.orders (customer_phone);
-create index orders_created_idx     on public.orders (created_at desc);
-create index orders_payment_idx     on public.orders (payment_status) where payment_status <> 'paid';
+create index if not exists orders_status_idx      on public.orders (status, created_at desc);
+create index if not exists orders_phone_idx       on public.orders (customer_phone);
+create index if not exists orders_created_idx     on public.orders (created_at desc);
+create index if not exists orders_payment_idx     on public.orders (payment_status) where payment_status <> 'paid';
 
 -- =============================================================================
 -- ৭. ORDER ITEMS  —  অর্ডারের লাইন আইটেম (বইয়ের তথ্য snapshot করা হয়)
 --    কেন snapshot? পরে বইয়ের দাম/নাম বদলালেও পুরনো ইনভয়েস অপরিবর্তিত থাকবে।
 -- =============================================================================
-create table public.order_items (
+create table if not exists public.order_items (
   id             uuid primary key default gen_random_uuid(),
   order_id       uuid not null references public.orders(id) on delete cascade,
   book_id        uuid references public.books(id) on delete set null,
@@ -284,13 +316,13 @@ create table public.order_items (
   created_at     timestamptz not null default now()
 );
 
-create index order_items_order_idx on public.order_items (order_id);
-create index order_items_book_idx  on public.order_items (book_id);
+create index if not exists order_items_order_idx on public.order_items (order_id);
+create index if not exists order_items_book_idx  on public.order_items (book_id);
 
 -- =============================================================================
 -- ৮. ORDER STATUS HISTORY  —  অর্ডারের অডিট ট্রেইল
 -- =============================================================================
-create table public.order_status_history (
+create table if not exists public.order_status_history (
   id          uuid primary key default gen_random_uuid(),
   order_id    uuid not null references public.orders(id) on delete cascade,
   from_status public.order_status,
@@ -300,12 +332,12 @@ create table public.order_status_history (
   created_at  timestamptz not null default now()
 );
 
-create index order_status_history_order_idx on public.order_status_history (order_id, created_at);
+create index if not exists order_status_history_order_idx on public.order_status_history (order_id, created_at);
 
 -- =============================================================================
 -- ৯. REVIEWS  —  কাস্টমার রিভিউ (অ্যাডমিন অ্যাপ্রুভ করলে সাইটে দেখাবে)
 -- =============================================================================
-create table public.reviews (
+create table if not exists public.reviews (
   id          uuid primary key default gen_random_uuid(),
   book_id     uuid not null references public.books(id) on delete cascade,
   author_name text not null,
@@ -316,13 +348,13 @@ create table public.reviews (
   created_at  timestamptz not null default now()
 );
 
-create index reviews_book_idx on public.reviews (book_id, is_approved, created_at desc);
+create index if not exists reviews_book_idx on public.reviews (book_id, is_approved, created_at desc);
 
 -- =============================================================================
 -- ১০. SITE SETTINGS  —  key/value কনফিগ (bKash নম্বর, হোমপেজের ব্যানার ইত্যাদি)
 --     is_public = true হলে ওয়েবসাইট থেকে পড়া যাবে, নাহলে শুধু staff।
 -- =============================================================================
-create table public.site_settings (
+create table if not exists public.site_settings (
   key        text primary key,
   value      jsonb not null,
   is_public  boolean not null default false,
@@ -332,7 +364,18 @@ create table public.site_settings (
 
 -- =============================================================================
 -- ট্রিগার সংযুক্তি
+--
+-- ⚠️ PostgreSQL-এ `create trigger if not exists` নেই। তাই আগে পুরনোটা মুছে
+--    নেওয়া হয় — এতে ফাইলটা যতবারই চালানো হোক, একই ফল আসে।
 -- =============================================================================
+drop trigger if exists trg_books_set_slug         on public.books;
+drop trigger if exists trg_coupons_upper_code     on public.coupons;
+drop trigger if exists trg_categories_updated     on public.categories;
+drop trigger if exists trg_books_updated          on public.books;
+drop trigger if exists trg_delivery_zones_updated on public.delivery_zones;
+drop trigger if exists trg_coupons_updated        on public.coupons;
+drop trigger if exists trg_orders_updated         on public.orders;
+
 create trigger trg_books_set_slug       before insert on public.books
   for each row execute function public.books_set_slug();
 create trigger trg_coupons_upper_code   before insert or update on public.coupons

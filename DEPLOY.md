@@ -73,7 +73,7 @@ Generate new token (classic) → `repo` স্কোপ দিয়ে বা�
 
 **Deploy চাপার আগেই** এই ছয়টি বসাতে হবে (নাহলে বিল্ড ফেল করবে):
 
-| Name | Value |
+| Name (Key ঘরে) | Value ঘরে |
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://vnmmvhalpqwwihxbldmy.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | আপনার `sb_publishable_...` |
@@ -81,6 +81,27 @@ Generate new token (classic) → `repo` স্কোপ দিয়ে বা�
 | `NEXT_PUBLIC_STORE_NAME` | `বইঘর` |
 | `NEXT_PUBLIC_SITE_URL` | আপাতত `https://example.vercel.app` — ডিপ্লয়ের পর আসল ঠিকানা দিয়ে বদলাবেন |
 | `CRON_SECRET` | `.env.local` এ যেটা আছে |
+
+> ### ⚠️ একটা একটা করে বসাতে হবে — পুরো ব্লক পেস্ট করা যাবে না
+>
+> Vercel-এ `.env` ফাইলের পুরো ব্লক একবারে পেস্ট করার কোনো সুবিধা **নেই**।
+> (Vercel doc: "Enter the **Name** … Then, enter the **Value** … Click Save")
+> ব্লক পেস্ট করলে পুরো লাইনটা **Key ঘরে** ঢুকে যায়, আর এই এরর আসে:
+>
+> > *The name of your Environment Variable contains invalid characters.
+> > Only letters, digits, and underscores are allowed.*
+>
+> **সঠিক নিয়ম — প্রতিটি ভেরিয়েবলের জন্য:**
+>
+> 1. **Key** ঘরে শুধু নামটা লিখুন — যেমন `NEXT_PUBLIC_SUPABASE_URL`
+>    (সমান চিহ্ন `=` বা মান কিছুই যাবে না)
+> 2. **Value** ঘরে মানটা লিখুন — যেমন `https://vnmmvhalpqwwihxbldmy.supabase.co`
+>    (কোটেশন `"` দেবেন না)
+> 3. Environment টিক দিন — Production, Preview, Development **তিনটেই**
+> 4. **Save** চাপুন
+> 5. পরেরটার জন্য আবার **Add New**
+>
+> ছয়টির জন্য ছয়বার। কষ্টকর, কিন্তু এটাই একমাত্র ড্যাশবোর্ড উপায়।
 
 ঐচ্ছিক (পরে যোগ করা যাবে):
 
@@ -91,6 +112,9 @@ Generate new token (classic) → `repo` স্কোপ দিয়ে বা�
 
 > **Environment গুলো:** Production **এবং** Preview — দুটোতেই টিক দিন,
 > নাহলে প্রিভিউ ডিপ্লয়ে সাইট ভাঙা দেখাবে।
+>
+> **মনে রাখুন:** env ভেরিয়েবল বদলালে **পুরনো ডিপ্লয়ে কাজ করে না** —
+> নতুন করে Redeploy করতে হয় (Vercel doc এ স্পষ্ট লেখা আছে)।
 
 ### ৫. Deploy চাপুন
 

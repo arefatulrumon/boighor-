@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckoutForm } from "@/components/checkout-form";
+import { Container } from "@/components/ui";
 import { getDeliveryZones } from "@/lib/queries";
 import { getPublicSettings } from "@/lib/settings";
 
@@ -24,14 +25,18 @@ export default async function CheckoutPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <Container className="py-8 sm:py-10">
       <nav className="mb-6 text-sm text-stone-600">
-        <Link href="/cart" className="hover:text-emerald-800">কার্ট</Link>
+        <Link href="/cart" className="transition-colors hover:text-brand-800">
+          কার্ট
+        </Link>
         <span className="mx-2 text-stone-400">/</span>
         <span className="text-stone-900">চেকআউট</span>
       </nav>
 
-      <h1 className="mb-8 text-2xl font-bold text-stone-900">অর্ডার সম্পন্ন করুন</h1>
+      <h1 className="font-display mb-8 text-3xl text-stone-900 sm:text-[2rem]">
+        অর্ডার সম্পন্ন করুন
+      </h1>
 
       <CheckoutForm
         zones={zones}
@@ -42,6 +47,6 @@ export default async function CheckoutPage() {
           delivery_default_fee: settings.delivery_default_fee,
         }}
       />
-    </div>
+    </Container>
   );
 }

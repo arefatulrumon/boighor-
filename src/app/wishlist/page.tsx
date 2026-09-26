@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BookCard } from "@/components/book-card";
-import { Button, ButtonLink, EmptyState } from "@/components/ui";
+import { Button, ButtonLink, Container, EmptyState } from "@/components/ui";
 import { getBooksByIds } from "@/lib/actions/wishlist";
 import { toBanglaDigits } from "@/lib/format";
 import { useWishlist } from "@/lib/wishlist";
@@ -49,9 +49,9 @@ export default function WishlistPage() {
 
   if (!ready || loading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-sm text-stone-500">
+      <Container className="py-16 text-center text-sm text-stone-500">
         লোড হচ্ছে...
-      </div>
+      </Container>
     );
   }
 
@@ -59,11 +59,11 @@ export default function WishlistPage() {
   const unavailable = ids.length - books.length;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <Container className="py-8 sm:py-10">
+      <div className="mb-7 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
         <div>
-          <h1 className="text-2xl font-bold text-stone-900">ইচ্ছেতালিকা</h1>
-          <p className="mt-1 text-sm text-stone-600">
+          <h1 className="font-display text-3xl text-stone-900">ইচ্ছেতালিকা</h1>
+          <p className="mt-2 text-sm text-stone-600">
             {books.length > 0
               ? `${toBanglaDigits(books.length)}টি বই পরে কেনার জন্য রেখেছেন`
               : "পরে কেনার বই এখানে জমা রাখুন"}
@@ -79,6 +79,7 @@ export default function WishlistPage() {
 
       {books.length === 0 ? (
         <EmptyState
+          icon="♡"
           title="তালিকা এখন খালি"
           description="যেকোনো বইয়ের কার্ডে ♡ চাপলে সেটি এখানে জমা হবে। লগইন লাগবে না — এই ব্রাউজারেই থাকবে।"
           action={<ButtonLink href="/books">বই দেখুন</ButtonLink>}
@@ -86,19 +87,19 @@ export default function WishlistPage() {
       ) : (
         <>
           {unavailable > 0 && (
-            <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs text-amber-900">
+            <p className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900">
               আপনার তালিকার {toBanglaDigits(unavailable)}টি বই এখন আর পাওয়া যাচ্ছে না —
               সম্ভবত স্টক থেকে সরিয়ে ফেলা হয়েছে।
             </p>
           )}
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
             {books.map((book, i) => (
               <BookCard key={book.id} book={book} priority={i < 4} />
             ))}
           </div>
         </>
       )}
-    </div>
+    </Container>
   );
 }

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans_Bengali } from "next/font/google";
+import { Noto_Sans_Bengali, Noto_Serif_Bengali } from "next/font/google";
 import { Suspense } from "react";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -12,15 +12,26 @@ import { SITE_URL } from "@/lib/supabase/env";
 import { getPublicSettings } from "@/lib/settings";
 
 /**
- * বাংলা ফন্ট — next/font নিজেই ফন্ট ডাউনলোড করে সেল্ফ-হোস্ট করে,
+ * বাংলা ফন্ট — next/font নিজেই ডাউনলোড করে সেল্ফ-হোস্ট করে,
  * তাই ব্রাউজার Google সার্ভারে আলাদা রিকোয়েস্ট করে না (দ্রুত + প্রাইভেট)।
  *
- * 💡 Noto Sans Bengali একটি variable font (weight 100–900), তাই `weight`
- *    দেওয়া হয়নি — দিলে next/font এরর দেবে।
+ * 💡 দুটোই variable font (weight 100–900), তাই `weight` দেওয়া হয়নি —
+ *    দিলে next/font এরর দেবে।
+ *
+ *   bangla       → --font-bangla          (বডি, UI)  = font-sans
+ *   banglaDisplay→ --font-bangla-display  (হেডলাইন)  = font-display
+ *
+ * বিস্তারিত ব্যাখ্যা globals.css এর @theme এ।
  */
 const bangla = Noto_Sans_Bengali({
   subsets: ["bengali"],
   variable: "--font-bangla",
+  display: "swap",
+});
+
+const banglaDisplay = Noto_Serif_Bengali({
+  subsets: ["bengali"],
+  variable: "--font-bangla-display",
   display: "swap",
 });
 
@@ -59,12 +70,18 @@ export default async function RootLayout({
   const settings = await getPublicSettings();
 
   return (
-    <html lang="bn" className={bangla.variable}>
-      <body className="font-sans antialiased">
+    <html lang="bn" className={`${bangla.variable} ${banglaDisplay.variable}`}>
+      {/*
+        ⚠️ `flex min-h-screen flex-col` (body) + `flex-1` (main) — এর কারণ:
+        ছোট পেজে (যেমন /track বা খালি ইচ্ছেতালিকা) ফুটারের উপরে বড় ফাঁকা
+        সাদা জায়গা তৈরি হতো। আগে `min-h-[60vh]` দিয়ে আন্দাজে সামলানো হতো;
+        এখন লেখা যত ছোটই হোক, ফুটার সবসময় একেবারে নিচে বসে।
+      */}
+      <body className="flex min-h-screen flex-col font-sans antialiased">
         <CartProvider>
           <WishlistProvider>
             {settings.announcement && (
-              <div className="no-print bg-emerald-900 px-4 py-2 text-center text-sm text-white">
+              <div className="no-print bg-brand-950 px-4 py-2 text-center text-sm text-brand-50">
                 {settings.announcement}
               </div>
             )}
@@ -77,10 +94,14 @@ export default async function RootLayout({
             <Suspense
               fallback={<div className="h-16 border-b border-stone-200 bg-white" />}
             >
-              <SiteHeader storeName={settings.store_name} />
+              <SiteHeader
+                storeName={settings.store_name}
+                phone={settings.contact_phone}
+                freeDeliveryNote={settings.free_delivery_note}
+              />
             </Suspense>
 
-            <main className="min-h-[60vh]">{children}</main>
+            <main className="flex-1">{children}</main>
 
             <SiteFooter
               info={{

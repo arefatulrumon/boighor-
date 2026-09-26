@@ -9,16 +9,23 @@ import { Badge, cn } from "./ui";
 /** কভার না থাকলে টাইটেল দিয়ে একটা সুন্দর প্লেসহোল্ডার বানানো হয়। */
 function CoverPlaceholder({ title }: { title: string }) {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-emerald-50 to-stone-100 p-4 text-center">
+    <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-brand-50 to-stone-100 p-4 text-center">
       <span className="text-3xl" aria-hidden>
         📗
       </span>
-      <span className="line-clamp-3 text-sm font-medium text-emerald-900">{title}</span>
-      <span className="text-[10px] uppercase tracking-wider text-stone-400">কভার নেই</span>
+      <span className="line-clamp-3 text-sm font-medium text-brand-900">{title}</span>
+      {/* ⚠️ `uppercase` বাংলায় কোনো কাজ করে না — ইচ্ছাকৃতভাবে বাদ দেওয়া হয়েছে */}
+      <span className="text-[10px] text-stone-400">কভার নেই</span>
     </div>
   );
 }
 
+/**
+ * বইয়ের কার্ড — তালিকা, হোমপেজ ও সম্পর্কিত বইয়ে একই দেখতে হয়।
+ *
+ * দাম display ফন্টে (সেরিফ) — বইয়ের দোকানের "সম্পাদকীয়" অনুভূতির জন্য,
+ * আর সংখ্যাগুলো আলাদা করে চোখে পড়ে।
+ */
 export function BookCard({
   book,
   priority = false,
@@ -36,18 +43,21 @@ export function BookCard({
   return (
     <article
       className={cn(
-        "group flex flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm transition-shadow hover:shadow-md",
+        "group flex flex-col overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lift",
         className
       )}
     >
-      <Link href={`/books/${slug}`} className="relative block aspect-[3/4] overflow-hidden bg-stone-100">
+      <Link
+        href={`/books/${slug}`}
+        className="relative block aspect-[3/4] overflow-hidden bg-stone-100"
+      >
         {book.cover_image_url ? (
           <Image
             src={book.cover_image_url}
             alt={book.title_bn}
             fill
             sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
             priority={priority}
           />
         ) : (
@@ -55,7 +65,7 @@ export function BookCard({
         )}
 
         {off !== null && (
-          <span className="absolute left-2 top-2 rounded-md bg-rose-600 px-2 py-0.5 text-xs font-semibold text-white shadow">
+          <span className="tabular absolute left-2.5 top-2.5 rounded-lg bg-accent-600 px-2 py-1 text-xs font-semibold text-white shadow-soft">
             {off}% ছাড়
           </span>
         )}
@@ -68,24 +78,22 @@ export function BookCard({
       </Link>
 
       {/* উইশলিস্ট — ছবির উপরে ভাসমান, তাই Link এর বাইরে রাখা হয়েছে */}
-      <div className="relative -mt-9 flex justify-end px-2">
+      <div className="relative -mt-9 flex justify-end px-2.5">
         <WishlistButton bookId={book.id} />
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-3.5">
+      <div className="flex flex-1 flex-col gap-2 p-4">
         <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-stone-900">
-          <Link href={`/books/${slug}`} className="hover:text-emerald-800">
+          <Link href={`/books/${slug}`} className="transition-colors hover:text-brand-800">
             {book.title_bn}
           </Link>
         </h3>
 
-        {book.author && (
-          <p className="line-clamp-1 text-xs text-stone-600">{book.author}</p>
-        )}
+        {book.author && <p className="line-clamp-1 text-xs text-stone-600">{book.author}</p>}
 
-        <div className="mt-auto space-y-2 pt-1">
+        <div className="mt-auto space-y-2.5 pt-1.5">
           <div className="flex items-baseline gap-2">
-            <span className="tabular text-base font-bold text-emerald-900">
+            <span className="font-display tabular text-lg text-brand-900">
               {formatTaka(book.price, { symbol: true })}
             </span>
             {book.compare_at_price && book.compare_at_price > book.price && (

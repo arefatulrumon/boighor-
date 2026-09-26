@@ -30,6 +30,9 @@ interface Props {
   };
 }
 
+/** একেকটা ধাপের কার্ড — তিনটাই একই দেখতে */
+const SECTION_CLASS = "rounded-2xl border border-stone-200/80 bg-white p-5 shadow-soft sm:p-6";
+
 export function CheckoutForm({ zones, settings }: Props) {
   const router = useRouter();
   const { lines, subtotal, ready, clear } = useCart();
@@ -157,10 +160,8 @@ export function CheckoutForm({ zones, settings }: Props) {
       {/* ============================= বাঁ দিক ============================= */}
       <div className="space-y-6">
         {/* --------------------------- কাস্টমার তথ্য --------------------------- */}
-        <section className="rounded-xl border border-stone-200 bg-white p-5">
-          <h2 className="mb-4 text-base font-semibold text-stone-900">
-            ১. আপনার তথ্য
-          </h2>
+        <section className={SECTION_CLASS}>
+          <h2 className="font-display mb-5 text-lg text-stone-900">১. আপনার তথ্য</h2>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="পুরো নাম" required error={errors.customer_name}>
@@ -202,10 +203,8 @@ export function CheckoutForm({ zones, settings }: Props) {
         </section>
 
         {/* ----------------------------- ঠিকানা ----------------------------- */}
-        <section className="rounded-xl border border-stone-200 bg-white p-5">
-          <h2 className="mb-4 text-base font-semibold text-stone-900">
-            ২. ডেলিভারি ঠিকানা
-          </h2>
+        <section className={SECTION_CLASS}>
+          <h2 className="font-display mb-5 text-lg text-stone-900">২. ডেলিভারি ঠিকানা</h2>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="বিভাগ" required error={errors.division}>
@@ -283,7 +282,7 @@ export function CheckoutForm({ zones, settings }: Props) {
           </div>
 
           {zone && (
-            <p className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
+            <p className="mt-5 rounded-xl bg-brand-50 px-3.5 py-2.5 text-xs text-brand-900">
               {zone.name_bn}: ডেলিভারি চার্জ {formatTaka(zone.fee, { symbol: true })} ·{" "}
               {toBanglaDigits(zone.eta_days_min)}–{toBanglaDigits(zone.eta_days_max)} দিনে পৌঁছাবে
               {zone.free_above !== null &&
@@ -293,8 +292,8 @@ export function CheckoutForm({ zones, settings }: Props) {
         </section>
 
         {/* ----------------------------- পেমেন্ট ----------------------------- */}
-        <section className="rounded-xl border border-stone-200 bg-white p-5">
-          <h2 className="mb-4 text-base font-semibold text-stone-900">৩. পেমেন্ট</h2>
+        <section className={SECTION_CLASS}>
+          <h2 className="font-display mb-5 text-lg text-stone-900">৩. পেমেন্ট</h2>
 
           <div className="space-y-3">
             {[
@@ -321,9 +320,9 @@ export function CheckoutForm({ zones, settings }: Props) {
               <label
                 key={opt.value}
                 className={cn(
-                  "flex cursor-pointer gap-3 rounded-lg border p-3.5 transition-colors",
+                  "flex cursor-pointer gap-3 rounded-xl border p-4 transition-colors",
                   form.payment_method === opt.value
-                    ? "border-emerald-700 bg-emerald-50"
+                    ? "border-brand-700 bg-brand-50"
                     : "border-stone-300 hover:bg-stone-50"
                 )}
               >
@@ -333,7 +332,7 @@ export function CheckoutForm({ zones, settings }: Props) {
                   value={opt.value}
                   checked={form.payment_method === opt.value}
                   onChange={() => set("payment_method", opt.value)}
-                  className="mt-1 size-4 accent-emerald-800"
+                  className="mt-1 size-4 accent-brand-800"
                 />
                 <span className="flex-1">
                   <span className="block text-sm font-medium text-stone-900">{opt.title}</span>
@@ -344,7 +343,7 @@ export function CheckoutForm({ zones, settings }: Props) {
           </div>
 
           {needsTrx && (
-            <div className="mt-5 space-y-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <div className="mt-5 space-y-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
               <p className="text-xs text-amber-900">
                 {settings.payment_instruction ||
                   "Send Money করার পর Transaction ID নিচে লিখুন।"}
@@ -376,8 +375,8 @@ export function CheckoutForm({ zones, settings }: Props) {
 
       {/* ============================= ডান দিক ============================= */}
       <aside className="h-fit space-y-4 lg:sticky lg:top-24">
-        <div className="rounded-xl border border-stone-200 bg-white p-5">
-          <h2 className="text-base font-semibold text-stone-900">আপনার অর্ডার</h2>
+        <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-soft sm:p-6">
+          <h2 className="font-display text-lg text-stone-900">আপনার অর্ডার</h2>
 
           <ul className="mt-4 max-h-64 space-y-3 overflow-y-auto">
             {lines.map((l) => (
@@ -396,7 +395,7 @@ export function CheckoutForm({ zones, settings }: Props) {
           </ul>
 
           {/* কুপন */}
-          <div className="mt-5 border-t border-stone-200 pt-4">
+          <div className="mt-5 border-t border-stone-100 pt-4">
             <Field label="কুপন কোড (ইচ্ছা হলে)">
               <div className="flex gap-2">
                 <Input
@@ -413,7 +412,7 @@ export function CheckoutForm({ zones, settings }: Props) {
               <p
                 className={cn(
                   "mt-2 text-xs",
-                  coupon ? "text-emerald-700" : "text-rose-600"
+                  coupon ? "text-brand-700" : "text-rose-600"
                 )}
               >
                 {couponMsg}
@@ -422,14 +421,14 @@ export function CheckoutForm({ zones, settings }: Props) {
           </div>
 
           {/* হিসাব */}
-          <dl className="mt-5 space-y-2.5 border-t border-stone-200 pt-4 text-sm">
+          <dl className="mt-5 space-y-3 border-t border-stone-100 pt-4 text-sm">
             <div className="flex justify-between">
               <dt className="text-stone-600">সাবটোটাল</dt>
               <dd className="tabular font-medium">{formatTaka(subtotal, { symbol: true })}</dd>
             </div>
 
             {discount > 0 && (
-              <div className="flex justify-between text-emerald-700">
+              <div className="flex justify-between text-brand-700">
                 <dt>ছাড় {coupon?.code && `(${coupon.code})`}</dt>
                 <dd className="tabular font-medium">
                   − {formatTaka(discount, { symbol: true })}
@@ -445,9 +444,9 @@ export function CheckoutForm({ zones, settings }: Props) {
             </div>
           </dl>
 
-          <div className="mt-4 flex items-baseline justify-between border-t border-stone-200 pt-4">
-            <span className="font-semibold text-stone-900">সর্বমোট</span>
-            <span className="tabular text-xl font-bold text-emerald-900">
+          <div className="mt-4 flex items-baseline justify-between border-t border-stone-100 pt-4">
+            <span className="font-display text-stone-900">সর্বমোট</span>
+            <span className="font-display tabular text-xl text-brand-900">
               {formatTaka(total, { symbol: true })}
             </span>
           </div>

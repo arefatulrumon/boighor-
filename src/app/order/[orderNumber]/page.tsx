@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { Alert, ButtonLink, Card, CardHeader } from "@/components/ui";
+import { Alert, ButtonLink, Card, CardHeader, Container } from "@/components/ui";
 import { PrintButton } from "@/components/print-button";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -43,15 +43,17 @@ export default async function OrderConfirmationPage({ params }: { params: Params
   // কুকি না মিললে (যেমন লিংক শেয়ার করে কেউ খুললে) অর্ডার দেখানো হয় না।
   if (!savedNumber || !savedPhone || savedNumber.toUpperCase() !== orderNumber.toUpperCase()) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16">
+      <Container className="max-w-2xl py-16">
         <Alert tone="warning">
           এই অর্ডারের তথ্য দেখাতে অর্ডার নম্বর ও মোবাইল নম্বর দুটোই লাগবে।
         </Alert>
-        <div className="mt-5 flex gap-3">
+        <div className="mt-6 flex flex-wrap gap-3">
           <ButtonLink href="/track">অর্ডার ট্র্যাক করুন</ButtonLink>
-          <ButtonLink href="/books" variant="outline">বই দেখুন</ButtonLink>
+          <ButtonLink href="/books" variant="outline">
+            বই দেখুন
+          </ButtonLink>
         </div>
-      </div>
+      </Container>
     );
   }
 
@@ -65,35 +67,42 @@ export default async function OrderConfirmationPage({ params }: { params: Params
 
   if (!result || !result.ok) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16">
+      <Container className="max-w-2xl py-16">
         <Alert tone="error">অর্ডারের তথ্য আনা যায়নি।</Alert>
-        <ButtonLink href="/track" className="mt-5">অর্ডার ট্র্যাক করুন</ButtonLink>
-      </div>
+        <ButtonLink href="/track" className="mt-6">
+          অর্ডার ট্র্যাক করুন
+        </ButtonLink>
+      </Container>
     );
   }
 
   const order = result;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
+    <Container className="max-w-3xl py-10 sm:py-12">
       {/* ------------------------------ সফল বার্তা ------------------------------ */}
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center sm:p-8">
-        <p className="text-4xl" aria-hidden>✅</p>
-        <h1 className="mt-3 text-2xl font-bold text-emerald-950">
+      <div className="rounded-2xl border border-brand-200 bg-gradient-to-b from-brand-50 to-white p-6 text-center shadow-soft sm:p-9">
+        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-brand-800 text-2xl text-white" aria-hidden>
+          ✓
+        </span>
+        <h1 className="font-display mt-5 text-3xl text-brand-950">
           ধন্যবাদ! আপনার অর্ডার পেয়েছি
         </h1>
-        <p className="prose-bn mt-2 text-sm text-emerald-900">
+        <p className="prose-bn mx-auto mt-3 max-w-lg text-sm text-stone-700">
           আমাদের প্রতিনিধি শীঘ্রই <strong>{order.order_number}</strong> নম্বর অর্ডারটি
           নিশ্চিত করতে আপনার মোবাইলে কল দেবেন।
         </p>
 
-        <div className="mt-5 inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-xl bg-white px-5 py-3 text-sm">
+        <div className="mt-7 inline-flex flex-wrap items-center justify-center gap-x-8 gap-y-3 rounded-2xl bg-white px-6 py-4 text-sm shadow-soft">
           <span className="text-stone-600">
             অর্ডার নম্বর:{" "}
-            <strong className="tabular text-stone-900">{order.order_number}</strong>
+            <strong className="tabular font-display text-base text-stone-900">
+              {order.order_number}
+            </strong>
           </span>
           <span className="text-stone-600">
-            সময়: <strong className="text-stone-900">{formatDateTimeBn(order.created_at)}</strong>
+            সময়:{" "}
+            <strong className="text-stone-900">{formatDateTimeBn(order.created_at)}</strong>
           </span>
         </div>
       </div>
@@ -102,7 +111,7 @@ export default async function OrderConfirmationPage({ params }: { params: Params
       <div className="mt-6 space-y-5">
         <Card>
           <CardHeader title="অর্ডারের অবস্থা" />
-          <div className="grid gap-3 px-5 py-4 text-sm sm:grid-cols-2">
+          <div className="grid gap-4 px-5 py-4 text-sm sm:grid-cols-2 sm:px-6 sm:py-5">
             <div className="flex justify-between sm:block">
               <span className="text-stone-500">স্টেটাস</span>
               <p className="font-medium text-stone-900">
@@ -135,18 +144,25 @@ export default async function OrderConfirmationPage({ params }: { params: Params
           <CardHeader title={`বই (${toBanglaDigits(order.items.length)}টি)`} />
           <ul className="divide-y divide-stone-100">
             {order.items.map((item, i) => (
-              <li key={`${item.title}-${i}`} className="flex items-center gap-4 px-5 py-4">
-                <div className="relative size-14 shrink-0 overflow-hidden rounded-lg border border-stone-200 bg-stone-100">
+              <li key={`${item.title}-${i}`} className="flex items-center gap-4 px-5 py-4 sm:px-6">
+                <div className="relative size-14 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-stone-100">
                   {item.cover ? (
-                    <Image src={item.cover} alt={item.title} fill sizes="56px" className="object-cover" />
+                    <Image
+                      src={item.cover}
+                      alt={item.title}
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                    />
                   ) : (
                     <span className="grid h-full w-full place-items-center text-xl">📗</span>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="line-clamp-2 text-sm font-medium text-stone-900">{item.title}</p>
-                  <p className="tabular mt-0.5 text-xs text-stone-500">
-                    {formatTaka(item.unit_price, { symbol: true })} × {toBanglaDigits(item.quantity)}
+                  <p className="tabular mt-1 text-xs text-stone-500">
+                    {formatTaka(item.unit_price, { symbol: true })} ×{" "}
+                    {toBanglaDigits(item.quantity)}
                   </p>
                 </div>
                 <p className="tabular shrink-0 text-sm font-semibold text-stone-900">
@@ -159,26 +175,32 @@ export default async function OrderConfirmationPage({ params }: { params: Params
 
         <Card>
           <CardHeader title="হিসাব" />
-          <dl className="space-y-2.5 px-5 py-4 text-sm">
+          <dl className="space-y-3 px-5 py-4 text-sm sm:px-6 sm:py-5">
             <div className="flex justify-between">
               <dt className="text-stone-600">সাবটোটাল</dt>
-              <dd className="tabular font-medium">{formatTaka(order.subtotal, { symbol: true })}</dd>
+              <dd className="tabular font-medium">
+                {formatTaka(order.subtotal, { symbol: true })}
+              </dd>
             </div>
             {order.discount > 0 && (
-              <div className="flex justify-between text-emerald-700">
+              <div className="flex justify-between text-brand-700">
                 <dt>ছাড়</dt>
-                <dd className="tabular font-medium">− {formatTaka(order.discount, { symbol: true })}</dd>
+                <dd className="tabular font-medium">
+                  − {formatTaka(order.discount, { symbol: true })}
+                </dd>
               </div>
             )}
             <div className="flex justify-between">
               <dt className="text-stone-600">ডেলিভারি চার্জ</dt>
               <dd className="tabular font-medium">
-                {order.delivery_fee === 0 ? "ফ্রি" : formatTaka(order.delivery_fee, { symbol: true })}
+                {order.delivery_fee === 0
+                  ? "ফ্রি"
+                  : formatTaka(order.delivery_fee, { symbol: true })}
               </dd>
             </div>
-            <div className="flex items-baseline justify-between border-t border-stone-200 pt-3">
-              <dt className="font-semibold text-stone-900">সর্বমোট</dt>
-              <dd className="tabular text-lg font-bold text-emerald-900">
+            <div className="flex items-baseline justify-between border-t border-stone-100 pt-3.5">
+              <dt className="font-display text-stone-900">সর্বমোট</dt>
+              <dd className="font-display tabular text-xl text-brand-900">
                 {formatTaka(order.total, { symbol: true })}
               </dd>
             </div>
@@ -186,9 +208,9 @@ export default async function OrderConfirmationPage({ params }: { params: Params
         </Card>
 
         {/* -------------------------------- পরবর্তী -------------------------------- */}
-        <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
-          <h2 className="text-sm font-semibold text-stone-900">এরপর কী হবে?</h2>
-          <ol className="prose-bn mt-3 space-y-2 text-sm text-stone-700">
+        <div className="rounded-2xl border border-stone-200/80 bg-stone-50/60 p-6">
+          <h2 className="font-display text-base text-stone-900">এরপর কী হবে?</h2>
+          <ol className="prose-bn mt-4 space-y-2.5 text-sm text-stone-700">
             <li>১. আমরা ফোন করে অর্ডার নিশ্চিত করব।</li>
             <li>
               ২. বই প্যাক করে কুরিয়ারে দেওয়া হবে
@@ -203,24 +225,27 @@ export default async function OrderConfirmationPage({ params }: { params: Params
           </ol>
 
           {settings.contact_phone && (
-            <p className="mt-4 text-sm text-stone-700">
+            <p className="mt-5 text-sm text-stone-700">
               যেকোনো প্রশ্নে কল করুন:{" "}
-              <a href={`tel:${settings.contact_phone}`} className="font-medium text-emerald-800">
+              <a
+                href={`tel:${settings.contact_phone}`}
+                className="tabular font-medium text-brand-800"
+              >
                 {settings.contact_phone}
               </a>
             </p>
           )}
 
-          <div className="no-print mt-5 flex flex-wrap gap-3">
+          <div className="no-print mt-6 flex flex-wrap gap-3">
             <Link
               href="/books"
-              className="rounded-lg bg-emerald-800 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-900"
+              className="inline-flex items-center justify-center rounded-xl bg-brand-800 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-900"
             >
               আরও বই কিনুন
             </Link>
             <Link
               href="/track"
-              className="rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-sm font-medium text-stone-800 hover:bg-stone-50"
+              className="inline-flex items-center justify-center rounded-xl border border-stone-300 bg-white px-5 py-2.5 text-sm font-semibold text-stone-800 transition-colors hover:border-brand-700 hover:bg-brand-50/60"
             >
               অর্ডার ট্র্যাক করুন
             </Link>
@@ -228,6 +253,6 @@ export default async function OrderConfirmationPage({ params }: { params: Params
           </div>
         </div>
       </div>
-    </div>
+    </Container>
   );
 }
